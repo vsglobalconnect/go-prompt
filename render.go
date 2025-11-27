@@ -13,6 +13,7 @@ type Render struct {
 	prefix             string
 	livePrefixCallback func() (prefix string, useLivePrefix bool)
 	breakLineCallback  func(*Document)
+	breakLineSequence  []byte
 	title              string
 	row                uint16
 	col                uint16
@@ -229,7 +230,7 @@ func (r *Render) BreakLine(buffer *Buffer) {
 	r.clear(cursor)
 	r.renderPrefix()
 	r.out.SetColor(r.inputTextColor, r.inputBGColor, false)
-	r.out.WriteStr(buffer.Document().Text + "\n")
+	r.out.WriteStr(buffer.Document().Text + string(r.breakLineSequence))
 	r.out.SetColor(DefaultColor, DefaultColor, false)
 	debug.AssertNoError(r.out.Flush())
 	if r.breakLineCallback != nil {

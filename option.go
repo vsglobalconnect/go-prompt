@@ -266,17 +266,25 @@ func OptionSetExitCheckerOnInput(fn ExitChecker) Option {
 	}
 }
 
+// OptionSetBreakLineSequence set the break line sequence
+func OptionSetBreakLineSequence(s []byte) Option {
+	return func(p *Prompt) error {
+		p.renderer.breakLineSequence = s
+		return nil
+	}
+}
+
 // New returns a Prompt with powerful auto-completion.
 func New(executor Executor, completer Completer, opts ...Option) *Prompt {
 	defaultWriter := NewStdoutWriter()
 	registerConsoleWriter(defaultWriter)
 
 	pt := &Prompt{
-		in: NewStandardInputParser(),
 		renderer: &Render{
 			prefix:                       "> ",
 			out:                          defaultWriter,
 			livePrefixCallback:           func() (string, bool) { return "", false },
+			breakLineSequence:            []byte{'\n'},
 			prefixTextColor:              Blue,
 			prefixBGColor:                DefaultColor,
 			inputTextColor:               DefaultColor,
@@ -305,6 +313,9 @@ func New(executor Executor, completer Completer, opts ...Option) *Prompt {
 		if err := opt(pt); err != nil {
 			panic(err)
 		}
+	}
+	if pt.in == nil {
+		pt.in = NewStandardInputParser()
 	}
 	return pt
 }
